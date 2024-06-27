@@ -4,7 +4,7 @@ import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
 import dotenv from 'dotenv'
 dotenv.config()
 
-console.debug('nuxt.config.ts: process.env.GRAPHQL_URL', process.env.GRAPHQL_URL)
+// console.debug('nuxt.config.ts: process.env.GRAPHQL_URL', process.env.GRAPHQL_URL)
 
 export default defineNuxtConfig({
   build: {
@@ -61,11 +61,11 @@ export default defineNuxtConfig({
     },
   },
   $production: {
-    title: 'Encointer Explorer',
+    // title: 'Encointer Explorer', // moved to app.config.tx
     devtools: { enabled: false },
   },
   $development: {
-    title: 'Encointer Explorer DEV',
+    // title: 'Encointer Explorer DEV', // moved to app.config.tx
     devtools: { enabled: true },
     devServer: {
       port: 8080

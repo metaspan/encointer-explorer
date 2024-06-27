@@ -1,6 +1,6 @@
 <template>
  <v-toolbar color="toolbar">
-    <v-toolbar-title>Encointer Scanner</v-toolbar-title>
+    <v-toolbar-title>{{ title }}</v-toolbar-title>
     <!-- <v-spacer></v-spacer> -->
     <v-toolbar-items>
       <v-btn to="/block" class="text-none">Block</v-btn>
@@ -15,3 +15,19 @@
     <v-spacer></v-spacer>
   </v-toolbar>
 </template>
+
+<script lang="ts">
+import { defineComponent, computed, watch, ref, onBeforeMount } from 'vue'
+
+export default defineComponent({
+  name: 'AppHeader',
+  setup () {
+    const appConfig = useAppConfig()
+    const title = ref(appConfig.title)
+    return {
+      title,
+    }
+  }
+})
+
+</script>
