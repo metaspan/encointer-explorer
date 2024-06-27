@@ -12,4 +12,23 @@ While subscan.io does not support Encointer, this repo provides a basic block ex
 
 # Screenshots
 
+## Account Extrinsics
+
 ![Account Extrinsics](./assets/account-extrinsics.jpg)
+
+## Account Extrinsics
+
+![Block Events](./assets/block-extrinsics.jpg)
+
+## Block Events
+
+![Block Events](./assets/block-events.jpg)
+
+## Event CommittedReputation
+
+![Block Events](./assets/event-committed-reputation.jpg)
+
+## Event Transfer
+
+![Block Events](./assets/event-transfer.jpg)
+
