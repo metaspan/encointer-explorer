@@ -4,8 +4,9 @@ Subsquid indexer for encointer
 
 # Create metadata
 ```bash
-squid-substrate-metadata-explorer --chain wss://rpc.metaspan.io/encointer --out types-encointer.jsonl
+squid-substrate-metadata-explorer --chain wss://rpc.metaspan.io/encointer-kusama --out types-encointer.jsonl
 # edit typegen.json
+# edit schema.grapghql
 # edit squid.yaml
 sqd typegen
 ```
@@ -24,16 +25,11 @@ sqd codegen
 
 ## Refs
 
-- subledgr subsquid-encointer - this repo
-- subledgr [subsquid-kusama](https://github.com/subledgr/subsquid-kusama)
-- subledgr [subsquid-polkadot](https://github.com/subledgr/subsquid-polkadot)
+- https://github.com/subsquid-labs/squid-substrate-template
 
 
 
-
-
-
-
+<!-- 
 
 # Squid template project
 
@@ -258,4 +254,5 @@ For instance, account data is passed to the handler context as a plain byte arra
 
 It is possible to extend `squid-graphql-server(1)` with custom
 [type-graphql](https://typegraphql.com) resolvers and to add request validation.
-For more details, consult [docs](https://docs.subsquid.io/graphql-api/).
+For more details, consult [docs](https://docs.subsquid.io/graphql-api/). 
+-->
