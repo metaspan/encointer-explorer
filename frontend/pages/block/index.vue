@@ -1,0 +1,208 @@
+<template>
+  <v-container>
+    <v-toolbar density="compact">
+      <v-toolbar-title>Blocks</v-toolbar-title>
+    </v-toolbar>
+
+    <v-card>
+      <!-- <v-card-title>Search</v-card-title> -->
+      <v-card-text>
+        <client-only>
+        <v-row>
+          <v-col md="3" sm=6>
+            <v-text-field @click="showFromDatePicker=true" readonly>
+              <!-- <template v-slot:default> -->
+                {{ fromDate.toLocaleDateString() }}
+              <!-- </template> -->
+            </v-text-field>
+          </v-col>
+          <v-col md="3" sm=6>
+            <v-text-field @click="showToDatePicker=true" readonly>
+              <template v-slot:default>
+                {{ toDate.toLocaleDateString() }}
+              </template>
+            </v-text-field>
+          </v-col>
+          <v-col md="3" sm="6">
+            <v-text-field v-model="blockNo" label="block"></v-text-field>
+          </v-col>
+          <v-col md=1 sm="6">
+            <v-btn @click="doRefetch">Search</v-btn>
+          </v-col>
+        </v-row>
+        </client-only>
+      </v-card-text>
+    </v-card>
+
+    <client-only>
+      <v-table>
+        <thead>
+          <tr>
+            <th>Block</th>
+            <th>Hash</th>
+            <!-- <th>Spec Version</th> -->
+            <th>Timestamp</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="item in list" :key="item.id">
+            <td>
+              <NuxtLink :to="`/block/${item.id}`">
+              {{ item.id }}
+              </NuxtLink>
+            </td>
+            <td>
+              <nuxt-link :to="`https://polkadot.js.org/apps/?rpc=wss://sys.ibp.network/encointer-kusama#/explorer/query/${item.hash}`" target="_blank">
+                  {{ formatHash(item.hash) }}
+                  <sup>
+                    <v-icon size="x-small">mdi-open-in-new</v-icon>
+                  </sup>
+                </nuxt-link>
+            </td>
+            <!-- <td>{{ item.specVersion }}</td> -->
+            <td>{{ new Date(item.timestamp).toLocaleString() }}</td>
+          </tr>
+        </tbody>
+      </v-table>
+      <!-- <v-list>
+      <v-list-item v-for="item in list">
+        <NuxtLink :to="`/block/${item.id}`">{{ item.id }}</NuxtLink>
+      </v-list-item>
+
+      </v-list> -->
+    </client-only>
+
+    <v-dialog v-model="showFromDatePicker" max-width="500">
+      <v-card max-width="400">
+        <v-date-picker v-model="fromDate" :max="toDate"></v-date-picker>
+        <template v-slot:actions>
+          <v-btn color="primary" text @click="showFromDatePicker = false">Cancel</v-btn>
+          <!-- <v-btn color="primary" text @click="showFromDatePicker = false">OK</v-btn> -->
+        </template>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="showToDatePicker" max-width="500">
+      <v-card max-width="400">
+        <v-date-picker v-model="toDate" :min="fromDate"></v-date-picker>
+        <template v-slot:actions>
+          <v-btn color="primary" text @click="showToDatePicker = false">Cancel</v-btn>
+          <!-- <v-btn color="primary" text @click="showToDatePicker = false">OK</v-btn> -->
+        </template>
+      </v-card>
+    </v-dialog>
+
+  </v-container>
+</template>
+
+<script lang="ts">
+import { defineComponent, computed, watch, ref, onBeforeMount } from 'vue'
+// import BlockList from '../../components/BlockList.vue';
+import type { IBlock } from '../../global/types'
+import { useBlockStore } from '../stores/blockStore';
+
+const QUERY_BLOCKS = gql`
+query blocks($orderBy: [BlockOrderByInput!], $limit: Int!, $offset: Int!, $fromDate: DateTime!, $toDate: DateTime!) {
+  blocks(orderBy: $orderBy, limit: $limit, offset: $offset, where: {AND: {timestamp_gte: $fromDate}, timestamp_lte: $toDate}) {
+    id
+    hash
+    specVersion
+    timestamp
+  }
+}
+`
+
+export default defineComponent({
+  components: {
+    // BlockList
+  },
+  setup () {
+    // const route = useRoute()
+    const router = useRouter()
+    const store = useBlockStore()
+    const blockNo = ref<string>('')
+    // const dateRange = ref<Date[]>([])
+    const showFromDatePicker = ref<boolean>(false)
+    const showToDatePicker = ref<boolean>(false)
+    const fromDate = ref<Date>(store.startDate)
+    const toDate = ref<Date>(store.endDate)
+    const limit = ref<number>(store.limit)
+    const offset = ref<number>(store.offset)
+    const list = ref<IBlock[]>([])
+
+    var { loading, error, refetch, onResult }: any = useQuery(QUERY_BLOCKS, {
+      orderBy: 'id_DESC',
+      limit: limit.value,
+      offset: offset.value,
+      fromDate: fromDate.value.toISOString(),
+      toDate: toDate.value.toISOString()
+    }, {
+      fetchPolicy: 'cache-and-network'
+    })
+    // if (result?.data?.Candidate) candidate.value = result.data.Candidate
+
+    onResult((event: any) => {
+      // console.debug('block/[id].vue: setup(): onResult', event)
+      const { loading, data, networkStatus } = event
+      if (loading) return
+      // block.value = {...data.blockById}
+      list.value = data.blocks
+    })
+
+    const doRefetch = () => {
+      // if blockNo is set, redirect to /block/:blockNo
+      if (blockNo.value) {
+        // console.debug('doRefetch', blockNo.value)
+        router.push({ path: `/block/${blockNo.value}` })
+        return
+      }
+      // console.debug('doRefetch', fromDate.value, toDate.value)
+      refetch({
+        orderBy: 'id_DESC',
+        limit: limit.value,
+        offset: offset.value,
+        fromDate: fromDate.value.toISOString(),
+        toDate: toDate.value.toISOString()
+      })
+    }
+
+    watch(fromDate, (value) => {
+      // console.debug('watch', value)
+      fromDate.value.setHours(0, 0, 0, 0)
+      store.startDate = fromDate.value
+      showFromDatePicker.value = false
+    })
+    watch(toDate, (value) => {
+      // console.debug('watch', value)
+      toDate.value.setHours(23, 59, 59, 999)
+      store.endDate = toDate.value
+      showToDatePicker.value = false
+    })
+
+    const formatHash = (hash: string) => {
+      return hash.slice(0, 6) + '...' + hash.slice(-6)
+    }
+
+    // onBeforeMount(() => {
+    //   console.debug('[[chainId]]/candidate/index.vue: onBeforeMount()', chainId.value)
+    //   if (chainId.value !== route.params.chainId?.toString()) {
+    //     store.setChainId(route.params.chainId?.toString())
+    //     router.push({ path: `/${chainId.value}/candidate` })
+    //   }
+    // })
+
+    return {
+      // dateRange,
+      blockNo,
+      fromDate,
+      toDate,
+      showFromDatePicker,
+      showToDatePicker,
+      doRefetch,
+      list,
+      formatHash,
+      // computeDateRange
+      // onSelectDate
+    }
+  }
+})
+</script>
