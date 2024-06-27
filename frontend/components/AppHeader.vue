@@ -9,7 +9,8 @@
       <v-btn to="/event" class="text-none">Event</v-btn>
     </v-toolbar-items>
     <v-spacer></v-spacer>
-    <v-btn class="text-none" v-tooltip:start.warning="indexingStalled ? 'warning: indexing stalled': ''" :color="indexingStalled ? 'warning': ''">
+    <v-btn class="text-none" v-tooltip:start.warning="indexingStalled ? 'warning: indexing stalled': ''" :color="indexingStalled ? 'warning': ''"
+      :to="`/block/${blockNo}`">
       idx:{{ blockNo }}
     </v-btn>
     <v-btn>

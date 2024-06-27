@@ -4,7 +4,7 @@
       <v-toolbar-title>Blocks</v-toolbar-title>
     </v-toolbar> -->
 
-    <v-card>
+    <v-card :loading="loading">
       <v-card-text>
         <client-only>
         <v-row>
@@ -36,7 +36,7 @@
         v-model="page"
         :length="Math.ceil(totalCount/limit)"
       ></v-pagination>
-      <v-table>
+      <v-table :loading="loading">
         <thead>
           <tr>
             <th>Block</th>
@@ -203,6 +203,7 @@ export default defineComponent({
       doRefetch,
       list,
       formatHash,
+      loading,
       page,
       limit,
       offset,

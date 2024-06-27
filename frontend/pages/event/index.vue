@@ -4,7 +4,7 @@
       <v-toolbar-title>Events</v-toolbar-title>
     </v-toolbar> -->
 
-    <v-card>
+    <v-card :loading="loading">
       <v-card-text>
         <client-only>
         <v-row>
@@ -207,6 +207,7 @@ export default defineComponent({
       page,
       totalCount,
       limit,
+      loading
     }
   }
 })

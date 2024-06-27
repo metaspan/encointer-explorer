@@ -5,7 +5,7 @@
       <v-spacer></v-spacer>
     </v-toolbar> -->
 
-    <v-card>
+    <v-card :loading="loading">
       <!-- <v-card-title>Search</v-card-title> -->
       <v-card-text>
         <client-only>
@@ -212,6 +212,7 @@ export default defineComponent({
       page,
       totalCount,
       limit,
+      loading
     }
   }
 })
