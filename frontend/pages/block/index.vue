@@ -5,22 +5,17 @@
     </v-toolbar> -->
 
     <v-card>
-      <!-- <v-card-title>Search</v-card-title> -->
       <v-card-text>
         <client-only>
         <v-row>
           <v-col md="3" sm=6>
             <v-text-field @click="showFromDatePicker=true" readonly>
-              <!-- <template v-slot:default> -->
-                {{ fromDate.toLocaleDateString() }}
-              <!-- </template> -->
+              {{ new Date(fromDate).toLocaleDateString() }}
             </v-text-field>
           </v-col>
           <v-col md="3" sm=6>
             <v-text-field @click="showToDatePicker=true" readonly>
-              <template v-slot:default>
-                {{ toDate.toLocaleDateString() }}
-              </template>
+              {{ new Date(toDate).toLocaleDateString() }}
             </v-text-field>
           </v-col>
           <v-col md="3" sm="6">
@@ -46,7 +41,6 @@
           <tr>
             <th>Block</th>
             <th>Hash</th>
-            <!-- <th>Spec Version</th> -->
             <th>Timestamp</th>
           </tr>
         </thead>
@@ -65,17 +59,10 @@
                   </sup>
                 </nuxt-link>
             </td>
-            <!-- <td>{{ item.specVersion }}</td> -->
             <td>{{ new Date(item.timestamp).toLocaleString() }}</td>
           </tr>
         </tbody>
       </v-table>
-      <!-- <v-list>
-      <v-list-item v-for="item in list">
-        <NuxtLink :to="`/block/${item.id}`">{{ item.id }}</NuxtLink>
-      </v-list-item>
-
-      </v-list> -->
     </client-only>
 
     <v-dialog v-model="showFromDatePicker" max-width="500">
@@ -102,7 +89,6 @@
 
 <script lang="ts">
 import { defineComponent, computed, watch, ref, onBeforeMount } from 'vue'
-// import BlockList from '../../components/BlockList.vue';
 import type { IBlock } from '../../global/types'
 import { useBlockStore } from '../stores/blockStore';
 
@@ -200,6 +186,7 @@ export default defineComponent({
       // console.debug('watch', value)
       store.page = value
       offset.value = (value-1) * limit.value
+      if(offset.value < 0) offset.value = 0
       doRefetch()
     })
 
