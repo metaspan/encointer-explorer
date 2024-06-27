@@ -12,7 +12,7 @@ While subscan.io does not support Encointer, this repo provides a basic block ex
 
 # Demo server
 
-A demo server is running at [https//encointer-explorer.metaspan.io](http://encointer-explorer.metaspan.io).
+A demo server is running at [http//encointer-explorer.metaspan.io](http://encointer-explorer.metaspan.io).
 \
 Please note, this is a demo server and indexing may be behind the latest block.
 
