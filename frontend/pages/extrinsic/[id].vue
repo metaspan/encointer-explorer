@@ -6,14 +6,7 @@
       </v-btn>
       <v-toolbar-title>Extrinsic #{{ formatId(extrinsic.id) }}</v-toolbar-title>
       <v-spacer></v-spacer>
-      <!-- <v-btn icon>
-        <v-icon>mdi-magnify</v-icon>
-      </v-btn>
-      <v-btn icon>
-        <v-icon>mdi-dots-vertical</v-icon>
-      </v-btn> -->
     </v-toolbar>
-    <!-- {{ block }} -->
 
     <v-card elevation="0">
       <v-card-text>
@@ -57,13 +50,6 @@
             </tr>
           </tbody>
         </v-table>
-        <!-- <v-container>
-          <v-col>
-            <v-text-field label="Section" v-model="extrinsic.section" readonly></v-text-field>
-            <v-text-field label="Method" v-model="extrinsic.method" readonly></v-text-field>
-            <v-text-field label="Timestamp" v-model="extrinsic.timestamp" readonly></v-text-field>
-          </v-col>
-        </v-container> -->
       </v-card-text>
     </v-card>
 
@@ -81,7 +67,6 @@
                 {{ formatId(item.id) }}
                 </NuxtLink>
               </td>
-              <!-- <td>{{ item.extrinsicHash }}</td> -->
               <td>{{ item.index }}</td>
               <td>{{ item.method }}</td>
               <td>{{ item.section }}</td>

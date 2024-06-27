@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { type IAccount } from '../../global/types'
 
 interface IState {
   initial: boolean
@@ -8,6 +9,7 @@ interface IState {
   endDate: Date
   limit: number
   offset: number
+  page: number
 }
 
 const initialState = {
@@ -21,7 +23,7 @@ const initialState = {
   offset: 0
 } as IState
 
-export const useBlockStore = defineStore('block', {
+export const useAccountStore = defineStore('account', {
   state: (() => initialState),
   actions: {}
 })

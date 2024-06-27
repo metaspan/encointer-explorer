@@ -2,6 +2,9 @@
   <v-container>
 
     <v-toolbar>
+      <v-btn icon @click="goto('/event')">
+        <v-icon>mdi-arrow-left</v-icon>
+      </v-btn>
       <v-toolbar-title>Event: {{ formatId(eevent.id) }}</v-toolbar-title>
     </v-toolbar>
 

@@ -1,18 +1,10 @@
 <template>
   <v-container>
-    <v-toolbar density="compact">
+    <!-- <v-toolbar density="compact" color="transparent">
       <v-toolbar-title>Events</v-toolbar-title>
-      <!-- <v-spacer></v-spacer>
-      <v-btn icon>
-        <v-icon>mdi-magnify</v-icon>
-      </v-btn>
-      <v-btn icon>
-        <v-icon>mdi-dots-vertical</v-icon>
-      </v-btn> -->
-    </v-toolbar>
+    </v-toolbar> -->
 
     <v-card>
-      <!-- <v-card-title>Search</v-card-title> -->
       <v-card-text>
         <client-only>
         <v-row>
@@ -30,11 +22,10 @@
               </template>
             </v-text-field>
           </v-col>
-          <v-col md="3" sm="6">
-            <v-text-field v-model="blockNo" label="block"></v-text-field>
-          </v-col>
           <v-col md=1 sm="6">
-            <v-btn size="small" @click="doRefetch">Search</v-btn>
+            <v-btn icon @click="doRefetch" elevation="0">
+              <v-icon>mdi-magnify</v-icon>
+            </v-btn>
           </v-col>
         </v-row>
         </client-only>
@@ -42,21 +33,25 @@
     </v-card>
 
     <client-only>
+      <v-pagination
+        v-model="page"
+        :length="Math.ceil(totalCount/limit)"
+      ></v-pagination>
       <v-table>
         <tbody>
           <tr>
+            <th>Event</th>
             <th>Block</th>
-            <th>Id</th>
             <th>Section</th>
             <th>Method</th>
             <th>Timestamp</th>
           </tr>
           <tr v-for="item in list" :key="item.id">
             <td>
-              <NuxtLink :to="`/block/${item.block?.id}`">{{ item.block?.id }}</NuxtLink>
+              <NuxtLink :to="`/event/${item.id}`">{{ formatId(item.id) }}</NuxtLink>
             </td>
             <td>
-              <NuxtLink :to="`/event/${item.id}`">{{ formatId(item.id) }}</NuxtLink>
+              <NuxtLink :to="`/block/${item.block?.id}`">{{ item.block?.id }}</NuxtLink>
             </td>
             <td>{{ item.section }}</td>
             <td>{{ item.method }}</td>
@@ -96,7 +91,8 @@
 
 <script lang="ts">
 import { defineComponent, computed, watch, ref, onBeforeMount } from 'vue'
-
+import { useEventStore } from '~/stores/eventStore';
+import { formatId } from '~/global/utils';
 
 // import { IEvent } from '../../global/types'
 interface IEvent {
@@ -108,8 +104,11 @@ interface IEvent {
 }
 
 const QUERY_EVENTS = gql`
-query events($orderBy: [EventOrderByInput!], $limit: Int!, $fromDate: DateTime!, $toDate: DateTime!) {
-  events(orderBy: $orderBy, limit: $limit, where: {AND: {timestamp_gte: $fromDate}, timestamp_lte: $toDate}) {
+query events($orderBy: [EventOrderByInput!], $offset: Int!, $limit: Int!, $fromDate: DateTime!, $toDate: DateTime!) {
+  eventsConnection(orderBy: chainId_ASC, where: {AND: {timestamp_gte: $fromDate}, timestamp_lte: $toDate}) {
+    totalCount
+  }
+  events(orderBy: $orderBy, offset: $offset, limit: $limit, where: {AND: {timestamp_gte: $fromDate}, timestamp_lte: $toDate}) {
     id
     section
     method
@@ -124,77 +123,90 @@ query events($orderBy: [EventOrderByInput!], $limit: Int!, $fromDate: DateTime!,
 export default defineComponent({
   components: {},
   setup () {
-    // const route = useRoute()
-    // const router = useRouter()
-    // const store = useStore()
-    const blockNo = ref<string>('')
+    const store = useEventStore()
     const showFromDatePicker = ref<boolean>(false)
     const showToDatePicker = ref<boolean>(false)
-    // start of the day
-    const fromDate = ref<Date>(new Date(new Date('2024-04-01T00:00:00Z').setHours(0, 0, 0, 0)))
-    // end of the day
-    const toDate = ref<Date>(new Date(new Date().setHours(23, 59, 59, 999)))
+
+    const fromDate = ref<Date>(store.startDate)
+    const toDate = ref<Date>(store.endDate)
+    const limit = ref<number>(store.limit)
+    const offset = ref<number>((store.page-1)*store.limit)
+    if(offset.value < 0) offset.value = 0
+    const page = ref<number>(store.page)
+    const totalCount = ref<number>(0)
+
     const list = ref<IEvent[]>([])
 
-    let doRefetch: any
+    var { loading, error, refetch, onResult }: any = useQuery(QUERY_EVENTS, {
+      fromDate: fromDate.value.toISOString(),
+      toDate: toDate.value.toISOString(),
+      orderBy: 'id_DESC',
+      offset: offset.value,
+      limit: limit.value,
+    }, {
+      fetchPolicy: 'cache-and-network'
+    })
 
-    onBeforeMount(() => {
-      var { loading, error, refetch, onResult }: any = useQuery(QUERY_EVENTS, {
-        orderBy: 'id_DESC',
-        limit: 25,
-        fromDate: fromDate.value.toISOString(),
-        toDate: toDate.value.toISOString()
-      }, {
-        fetchPolicy: 'cache-and-network'
-      })
-
-      onResult((event: any) => {
-        console.debug('event/[id].vue: setup(): onResult', event)
-        const { loading, data, networkStatus } = event
-        if (loading) return
-        // block.value = {...data.blockById}
-        list.value = data.events
-      })
-
-      doRefetch = () => {
-        console.debug('doRefetch', fromDate.value, toDate.value)
-        refetch({
-          orderBy: 'id_DESC',
-          limit: 25,
-          fromDate: fromDate.value.toISOString(),
-          toDate: toDate.value.toISOString()
-        })
+    onResult((event: any) => {
+      console.debug('event/[id].vue: setup(): onResult', event)
+      const { loading, data, networkStatus } = event
+      if (loading) return
+      // block.value = {...data.blockById}
+      list.value = data.events
+      totalCount.value = data.eventsConnection.totalCount
+      const maxPage = Math.ceil(totalCount.value / limit.value)
+      if(page.value > maxPage) {
+        page.value = maxPage
+        offset.value = (page.value-1) * limit.value
       }
     })
+
+    const doRefetch = () => {
+      console.debug('doRefetch', fromDate.value, toDate.value)
+      refetch({
+        fromDate: fromDate.value.toISOString(),
+        toDate: toDate.value.toISOString(),
+        orderBy: 'id_DESC',
+        offset: offset.value,
+        limit: limit.value,
+      })
+    }
+
     watch(fromDate, (value) => {
-      console.debug('watch', value)
+      // console.debug('watch', value)
       fromDate.value.setHours(0, 0, 0, 0)
+      store.startDate = fromDate.value
       showFromDatePicker.value = false
     })
     watch(toDate, (value) => {
-      console.debug('watch', value)
+      // console.debug('watch', value)
       toDate.value.setHours(23, 59, 59, 999)
+      store.endDate = toDate.value
       showToDatePicker.value = false
     })
+    watch(() => page.value, (value) => {
+      console.debug('watch', value)
+      store.page = value
+      offset.value = (value-1) * limit.value
+      if(offset.value < 0) offset.value = 0
+      doRefetch()
+    })
 
-    const formatId = (id: string) => {
-      let blockNo = id.split('-')[0] || '0'
-      blockNo = blockNo.replace(/^0+/, '')
-      let index = id.split('-')[2] || '0'
-      index = index.replace(/^0+/, '')
-      if(index === '') index = '0'
-      return `${blockNo}_${index}`
-    }
+    onBeforeMount(() => {
+      doRefetch()
+    })
 
     return {
-      blockNo,
       fromDate,
       toDate,
       showFromDatePicker,
       showToDatePicker,
       doRefetch,
       list,
-      formatId
+      formatId,
+      page,
+      totalCount,
+      limit,
     }
   }
 })

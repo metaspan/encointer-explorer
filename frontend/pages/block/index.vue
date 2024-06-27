@@ -1,8 +1,8 @@
 <template>
   <v-container>
-    <v-toolbar density="compact">
+    <!-- <v-toolbar density="compact" color="transparent">
       <v-toolbar-title>Blocks</v-toolbar-title>
-    </v-toolbar>
+    </v-toolbar> -->
 
     <v-card>
       <!-- <v-card-title>Search</v-card-title> -->
@@ -27,7 +27,9 @@
             <v-text-field v-model="blockNo" label="block"></v-text-field>
           </v-col>
           <v-col md=1 sm="6">
-            <v-btn @click="doRefetch">Search</v-btn>
+            <v-btn icon @click="doRefetch" elevation="0">
+              <v-icon>mdi-magnify</v-icon>
+            </v-btn>
           </v-col>
         </v-row>
         </client-only>
@@ -35,6 +37,10 @@
     </v-card>
 
     <client-only>
+      <v-pagination
+        v-model="page"
+        :length="Math.ceil(totalCount/limit)"
+      ></v-pagination>
       <v-table>
         <thead>
           <tr>
@@ -102,6 +108,9 @@ import { useBlockStore } from '../stores/blockStore';
 
 const QUERY_BLOCKS = gql`
 query blocks($orderBy: [BlockOrderByInput!], $limit: Int!, $offset: Int!, $fromDate: DateTime!, $toDate: DateTime!) {
+  blocksConnection(orderBy: chainId_ASC, where: {AND: {timestamp_gte: $fromDate}, timestamp_lte: $toDate}) {
+    totalCount
+  }
   blocks(orderBy: $orderBy, limit: $limit, offset: $offset, where: {AND: {timestamp_gte: $fromDate}, timestamp_lte: $toDate}) {
     id
     hash
@@ -123,11 +132,16 @@ export default defineComponent({
     // const dateRange = ref<Date[]>([])
     const showFromDatePicker = ref<boolean>(false)
     const showToDatePicker = ref<boolean>(false)
+
     const fromDate = ref<Date>(store.startDate)
     const toDate = ref<Date>(store.endDate)
     const limit = ref<number>(store.limit)
-    const offset = ref<number>(store.offset)
+    const offset = ref<number>((store.page-1)*store.limit)
+    if(offset.value < 0) offset.value = 0
+    const page = ref<number>(store.page)
+
     const list = ref<IBlock[]>([])
+    const totalCount = ref<number>(0)
 
     var { loading, error, refetch, onResult }: any = useQuery(QUERY_BLOCKS, {
       orderBy: 'id_DESC',
@@ -138,14 +152,19 @@ export default defineComponent({
     }, {
       fetchPolicy: 'cache-and-network'
     })
-    // if (result?.data?.Candidate) candidate.value = result.data.Candidate
 
     onResult((event: any) => {
       // console.debug('block/[id].vue: setup(): onResult', event)
       const { loading, data, networkStatus } = event
       if (loading) return
-      // block.value = {...data.blockById}
       list.value = data.blocks
+      totalCount.value = data.blocksConnection.totalCount
+      const maxPage = Math.ceil(totalCount.value / limit.value)
+      if(page.value > maxPage) {
+        page.value = maxPage
+        offset.value = (page.value-1) * limit.value
+        if(offset.value < 0) offset.value = 0
+      }
     })
 
     const doRefetch = () => {
@@ -177,21 +196,18 @@ export default defineComponent({
       store.endDate = toDate.value
       showToDatePicker.value = false
     })
+    watch(() => page.value, (value) => {
+      // console.debug('watch', value)
+      store.page = value
+      offset.value = (value-1) * limit.value
+      doRefetch()
+    })
 
     const formatHash = (hash: string) => {
       return hash.slice(0, 6) + '...' + hash.slice(-6)
     }
 
-    // onBeforeMount(() => {
-    //   console.debug('[[chainId]]/candidate/index.vue: onBeforeMount()', chainId.value)
-    //   if (chainId.value !== route.params.chainId?.toString()) {
-    //     store.setChainId(route.params.chainId?.toString())
-    //     router.push({ path: `/${chainId.value}/candidate` })
-    //   }
-    // })
-
     return {
-      // dateRange,
       blockNo,
       fromDate,
       toDate,
@@ -200,8 +216,10 @@ export default defineComponent({
       doRefetch,
       list,
       formatHash,
-      // computeDateRange
-      // onSelectDate
+      page,
+      limit,
+      offset,
+      totalCount,
     }
   }
 })
