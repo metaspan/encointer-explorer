@@ -41,15 +41,20 @@ export default defineComponent({
     const indexingStalled = ref(false)
     let interval: any = null
 
-    var { loading, error, refetch, onResult }: any = useQuery(QUERY_BLOCK_HEIGHT, {}, {
+    const { loading, error, refetch, onResult } = useQuery(QUERY_BLOCK_HEIGHT, {}, {
       fetchPolicy: 'cache-and-network'
     })
 
+    var debouncing = false
+
     onResult((event: any) => {
-      // console.debug('block/[id].vue: setup(): onResult', event)
+      // console.debug('block/[id].vue: setup(): onResult', event);
       const { loading, data, networkStatus } = event
       if (loading) return
-      if (data.blocks[0].id <= store.blockNo) {
+      if (debouncing) return // for some reason, onResult is called twice for each interval.
+      debouncing = true
+      setTimeout(() => { debouncing = false }, 1000)
+      if (Number(data.blocks[0].id) <= store.blockNo) {
         console.warn('indexing stalled at', store.blockNo, '?')
         indexingStalled.value = true
       } else {
@@ -59,20 +64,18 @@ export default defineComponent({
     })
 
     const doRefetch = () => {
-      // console.debug('doRefetch', fromDate.value, toDate.value)
       refetch()
     }
 
-    // refetch every 30 seconds
     onBeforeMount(() => {
+      doRefetch()
       interval = setInterval(() => {
         doRefetch()
       }, 30_000)
-      return () => clearInterval(interval)
     })
 
     onBeforeUnmount(() => {
-      // console.debug('onBeforeUnmount')
+      // console.debug('onBeforeUnmount, clearing interval', interval)
       if (interval) clearInterval(interval)
     })
 
