@@ -9,3 +9,7 @@ While subscan.io does not support Encointer, this repo provides a basic block ex
 # Frontend
 
 [The frontend](./frontend/README.md) is a Nuxt.js app that uses Apollo Client to query the GraphQL endpoint of the backend.
+
+# Screenshots
+
+![Account Extrinsics](./assets/account-extrinsics.jpg)
