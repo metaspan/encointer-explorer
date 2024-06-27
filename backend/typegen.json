@@ -1,0 +1,31 @@
+{
+  "outDir": "src/types",
+  "specVersions": "types-encointer.jsonl",
+  "constants": true,
+  "pallets": {
+    "TransactionPayment": {
+      "events": [
+        "TransactionFeePaid"
+      ]
+    },
+    "Balances": {
+      "events": [
+        "BalanceSet",
+        "Deposit",
+        "DustLost",
+        "Endowed",
+        "NewAccount",
+        "ReapedAccount",
+        "Reserved",
+        "ReserveRepatriated",
+        "Slashed",
+        "Transfer",
+        "Unreserved",
+        "Withdraw"
+      ],
+      "calls": [],
+      "storage": [],
+      "constants": []
+    }
+  }
+}
