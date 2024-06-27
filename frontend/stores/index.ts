@@ -13,7 +13,8 @@ export const useStore = defineStore('store', {
     initial: true,
     loading: false,
     dark: true,
-    chainId: 'encointer'
+    chainId: 'encointer',
+    blockNo: 0,
   }),
   actions: {
     async init () {

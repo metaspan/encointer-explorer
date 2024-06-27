@@ -193,6 +193,7 @@ export default defineComponent({
       // console.debug('watch', value)
       store.page = value
       offset.value = (value-1) * limit.value
+      if(offset.value < 0) offset.value = 0
       doRefetch()
     })
 
