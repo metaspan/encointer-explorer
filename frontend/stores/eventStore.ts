@@ -15,8 +15,10 @@ const initialState = {
   initial: true,
   chainId: 'encointer',
   // Search
-  startDate: new Date(),
-  endDate: new Date(),
+  // start of today
+  startDate: new Date(new Date().setHours(0, 0, 0, 0)),
+  // end of today
+  endDate: new Date(new Date().setHours(23, 59, 59, 999)),
   page: 1,
   limit: 25,
   offset: 0

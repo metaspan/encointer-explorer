@@ -90,7 +90,7 @@
 <script lang="ts">
 import { defineComponent, computed, watch, ref, onBeforeMount } from 'vue'
 import type { IBlock } from '../../global/types'
-import { useBlockStore } from '../stores/blockStore';
+import { useBlockStore } from '../../stores/blockStore';
 
 const QUERY_BLOCKS = gql`
 query blocks($orderBy: [BlockOrderByInput!], $limit: Int!, $offset: Int!, $fromDate: DateTime!, $toDate: DateTime!) {

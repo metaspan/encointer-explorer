@@ -23,6 +23,7 @@ export default defineNuxtConfig({
     // ...
     '@pinia/nuxt',
     '@nuxtjs/apollo',
+    '@nuxtjs/plausible',
   ],
   vite: {
     vue: {
@@ -59,6 +60,13 @@ export default defineNuxtConfig({
         },
       },
     },
+  },
+  plausible: {
+    // ignoredHostnames: ['localhost'],
+    domain: 'encointer-explorer.metaspan.io',
+    hashMode: true,
+    trackLocalhost: true,
+    apiHost: 'https://click.metaspan.io',
   },
   $production: {
     // title: 'Encointer Explorer', // moved to app.config.tx
