@@ -1,12 +1,16 @@
 interface IAccount {
   id: string
+  extrinsics: IExtrinsic[]
 }
 
 interface IBlock {
   chainId: string
   id: string
   hash: string
+  specVersion: string
   timestamp: string
+  extrinsics: IExtrinsic[]
+  events: IEvent[]
 }
 
 interface IEvent {

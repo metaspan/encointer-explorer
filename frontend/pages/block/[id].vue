@@ -55,8 +55,8 @@
     </v-card>
 
     <v-tabs v-model="tab">
-      <v-tab value="extrinsics">Extrinsics</v-tab>
-      <v-tab value="events">Events</v-tab>
+      <v-tab value="extrinsics">Extrinsics ({{ block.extrinsics?.length || 0 }})</v-tab>
+      <v-tab value="events">Events ({{ block.events?.length || 0 }})</v-tab>
     </v-tabs>
 
     <v-tabs-window v-model="tab" :transition="false">
@@ -175,7 +175,8 @@ export default defineComponent({
       chainId: '',
       id: '',
       hash: '',
-      timestamp: ''
+      timestamp: '',
+      extrinsics: [],
     })
 
     var { loading, error, refetch, onResult }: any = useQuery(QUERY_BLOCK, {

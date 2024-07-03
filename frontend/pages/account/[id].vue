@@ -40,11 +40,15 @@
 
     <v-tabs v-model="tab">
       <!-- <v-tab value="tranfers">Transfers</v-tab> -->
-      <v-tab value="extrinsics">Extrinsics</v-tab>
+      <v-tab value="extrinsics">Extrinsics ({{ totalCount }})</v-tab>
     </v-tabs>
 
     <v-tabs-window v-model="tab">
       <v-tabs-window-item value="extrinsics">
+        <v-pagination
+          v-model="page"
+          :length="Math.ceil(totalCount/limit)"
+        ></v-pagination>
         <v-table>
           <thead>
             <tr>
@@ -106,12 +110,15 @@ import { defineComponent, computed, ref, onBeforeMount } from 'vue'
 import ClickToCopy from '../../components/ClickToCopy.vue';
 
 const QUERY_ACCOUNT = gql`
-query accountById($id: String!) {
+query accountById($id: String!, $limit: Int, $offset: Int) {
+  extrinsicsConnection(orderBy: chainId_ASC, where: {signer: {id_eq: $id}}) {
+    totalCount
+  }
   accountById(id: $id) {
     # chainId
     id
     # hash
-    extrinsics(limit: 25) {
+    extrinsics(limit: $limit, offset: $offset, orderBy: id_DESC) {
       id
       extrinsicHash
       index
@@ -139,10 +146,17 @@ export default defineComponent({
     const tab = ref('extrinsics')
     const account = ref<IAccount>({
       id: '',
+      extrinsics: [],
     })
+    const totalCount = ref(0)
+    const offset = ref(0)
+    const limit = ref(25)
+    const page = ref(1)
 
     var { loading, error, refetch, onResult }: any = useQuery(QUERY_ACCOUNT, {
       // chainId: 'encointer',
+      offset: (page.value-1)*limit.value,
+      limit: limit.value,
       id: id.value
     }, {
       fetchPolicy: 'cache-and-network'
@@ -153,7 +167,16 @@ export default defineComponent({
       const { loading, data, networkStatus } = event
       if (loading) return
       account.value = {...data.accountById ? data.accountById : { id: id.value }}
+      totalCount.value = data.extrinsicsConnection.totalCount
     })
+
+    const doRefetch = () => {
+      refetch({
+        id: id.value,
+        offset: offset.value,
+        limit: limit.value
+      })
+    }
 
     onBeforeMount(() => {
       // check if route.query.tab is set
@@ -162,6 +185,15 @@ export default defineComponent({
         tab.value = route.query.tab.toString()
       }
     })
+
+    watch(() => page.value, (value) => {
+      // console.debug('watch', value)
+      // store.page = value
+      offset.value = (value-1) * limit.value
+      if(offset.value < 0) offset.value = 0
+      doRefetch()
+    })
+
 
     const goto = (path: string) => {
       // console.debug('block/[id].vue: goto()', path)
@@ -184,6 +216,9 @@ export default defineComponent({
 
     return {
       account,
+      page,
+      limit,
+      totalCount,
       loading,
       tab,
       formatId,

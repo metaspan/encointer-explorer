@@ -54,7 +54,7 @@
     </v-card>
 
     <v-tabs v-model="tab">
-      <v-tab value="events">Events</v-tab>
+      <v-tab value="events">Events ({{ extrinsic.events?.length || 0 }})</v-tab>
     </v-tabs>
 
     <v-tabs-window v-model="tab">
