@@ -2,6 +2,21 @@
 
 Subsquid indexer for encointer
 
+# dependencies
+
+```bash
+nvm install 20
+nvm alias default 20
+npm i -g @subsquid/cli@latest
+npm install
+```
+
+# Configure .env
+
+```bash
+cp .env.bak .env
+```
+
 # Create metadata
 ```bash
 squid-substrate-metadata-explorer --chain wss://rpc.metaspan.io/encointer-kusama --out types-encointer.jsonl

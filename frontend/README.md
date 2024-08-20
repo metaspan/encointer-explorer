@@ -15,6 +15,17 @@ yarn install
 
 Copy `.env.sample` to `.env` and adjust the values
 
+
+## Production
+
+Check app.config.ts
+
+```bash
+pm2 restart ecosystem.config.cjs
+pm2 list
+pm2 resurrect
+```
+
 ## Development Server
 
 Start the development server on `http://localhost:3000`:

@@ -11,9 +11,10 @@ module.exports = class Data1706282414690 {
           "chain_id" character varying NOT NULL, 
           "id" bigint NOT NULL, 
           "hash" text NOT NULL, 
-          "spec_version" character varying WITH NULL, 
+          "spec_version" character varying NULL, 
           "timestamp" TIMESTAMP WITH TIME ZONE NOT NULL, 
           CONSTRAINT "PK_d0925763efb591c2e2ffb267572" PRIMARY KEY ("id"))`)
+
         await db.query(`CREATE INDEX "IDX_f8fba63d7965bfee9f304c4870" ON "block" ("chain_id") `)
         await db.query(`CREATE INDEX "IDX_f8fba63d7965bfee9f304c487a" ON "block" ("hash") `)
         await db.query(`CREATE INDEX "IDX_5c67cbcf4960c1a39e5fe25e87" ON "block" ("timestamp") `)
@@ -26,6 +27,7 @@ module.exports = class Data1706282414690 {
           "extrinsic_id" text NOT NULL, 
           "section" text NOT NULL, 
           "method" text NOT NULL, 
+          "signer_id" text NULL, 
           "data" text NOT NULL, 
           "timestamp" TIMESTAMP WITH TIME ZONE NOT NULL, 
           CONSTRAINT "PK_30c2f3bbaf6d34a55f8ae6e4614" PRIMARY KEY ("id"))`)
@@ -43,9 +45,8 @@ module.exports = class Data1706282414690 {
           "block_id" bigint NOT NULL, 
           "index" integer NOT NULL default 0, 
           "extrinsic_hash" text NOT NULL, 
-          "signer_id" character varying WITH NULL,
+          "signer_id" character varying NULL,
           "timestamp" TIMESTAMP WITH TIME ZONE NOT NULL, 
-          "signer" text NOT NULL, 
           "section" text NOT NULL, 
           "method" text NOT NULL, 
           "fee" numeric NOT NULL, 
@@ -54,10 +55,10 @@ module.exports = class Data1706282414690 {
         await db.query(`CREATE INDEX "IDX_142f352835c698a35eacbeb2f4" ON "extrinsic" ("chain_id") `)
         await db.query(`CREATE INDEX "IDX_142f352835c698a35eacbeb2f5" ON "extrinsic" ("block_id") `)
         await db.query(`CREATE INDEX "IDX_91b0c68a28f1eed15d736d7e11" ON "extrinsic" ("index") `)
-        await db.query(`CREATE INDEX "IDX_1f45de0713a55049009e8e8127" ON "extrinsic" ("hash") `)
-        await db.query(`CREATE INDEX "IDX_129efedcb305c80256db2d57a5" ON "extrinsic" ("extrinsic_id") `)
+        await db.query(`CREATE INDEX "IDX_1f45de0713a55049009e8e8127" ON "extrinsic" ("extrinsic_hash") `)
+        // await db.query(`CREATE INDEX "IDX_129efedcb305c80256db2d57a5" ON "extrinsic" ("extrinsic_id") `)
         await db.query(`CREATE INDEX "IDX_6e232918078798b1fade21dcf8" ON "extrinsic" ("timestamp") `)
-        await db.query(`CREATE INDEX "IDX_001ddf290faf765f9dfd9154d3" ON "extrinsic" ("signer") `)
+        await db.query(`CREATE INDEX "IDX_001ddf290faf765f9dfd9154d3" ON "extrinsic" ("signer_id") `)
         await db.query(`CREATE INDEX "IDX_f27ce26722a5bff4dad664d4cb" ON "extrinsic" ("section") `)
         await db.query(`CREATE INDEX "IDX_fee06ac3db4d6eaeab04d0e5eb" ON "extrinsic" ("method") `)
         await db.query(`CREATE INDEX "IDX_21e5db7671dfa1b00dbe6dbbd6" ON "extrinsic" ("success") `)

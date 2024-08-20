@@ -1,5 +1,9 @@
 version: "3"
 
+# Project Name not allowed
+# project_name: encointer-explorer
+# use: docker-compose -p encointer-explorer up -d
+
 services:
   db:
     image: postgres:15
@@ -10,6 +14,5 @@ services:
     ports:
       - "${DB_PORT}:5432"
       # command: ["postgres", "-c", "log_statement=all"]
-#    volumes:
-#      - ./data/db:/var/lib/postgresql/data
-
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
