@@ -24,7 +24,7 @@ module.exports = class Data1706282414690 {
           "id" character varying NOT NULL, 
           "block_id" bigint NOT NULL, 
           "index" integer NOT NULL, 
-          "extrinsic_id" text NOT NULL, 
+          "extrinsic_id" text NULL, 
           "section" text NOT NULL, 
           "method" text NOT NULL, 
           "signer_id" text NULL, 
